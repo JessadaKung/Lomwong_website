@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  OWNER
+  STAFF
+}
+
+enum StoreState {
+  OPEN
+  CLOSED
+  RENOVATION
+}
+
+enum BookingStatus {
+  PENDING
+  SEATED
+  CANCELLED
+}
+
+enum OrderStatus {
+  PENDING
+  PREPARING
+  READY
+  PAID
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(STAFF)
+  createdAt DateTime @default(now())
+  orders    Order[]  @relation("StaffOrders")
+  sales     Sale[]
+}
+
+model MenuItem {
+  id        String   @id @default(cuid())
+  name      String
+  category  String
+  price     Decimal  @db.Decimal(10, 2)
+  imageUrl  String?
+  isActive  Boolean  @default(true)
+  isSoldOut Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Promotion {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  price       Decimal? @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model StoreStatus {
+  id             String     @id @default(cuid())
+  status         StoreState @default(OPEN)
+  availableRooms Int        @default(0)
+  roomPrice      Decimal?   @db.Decimal(10, 2)
+  updatedAt      DateTime   @updatedAt
+  updatedBy      String?
+}
+
+model Booking {
+  id        String        @id @default(cuid())
+  name      String
+  phone     String
+  guests    Int
+  time      DateTime
+  status    BookingStatus @default(PENDING)
+  date      DateTime
+  createdAt DateTime      @default(now())
+}
+
+model Order {
+  id          String      @id @default(cuid())
+  tableId     String
+  staffId     String?
+  staff       User?       @relation("StaffOrders", fields: [staffId], references: [id])
+  status      OrderStatus @default(PENDING)
+  totalAmount Decimal     @db.Decimal(10, 2)
+  items       Json
+  qrToken     String?
+  createdAt   DateTime    @default(now())
+}
+
+model Sale {
+  id        String   @id @default(cuid())
+  amount    Decimal  @db.Decimal(10, 2)
+  note      String?
+  staffId   String?
+  staff     User?    @relation(fields: [staffId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model QrToken {
+  id            String   @id @default(cuid())
+  token         String   @unique
+  tableId       String
+  staffId       String
+  expireMinutes Int
+  expiresAt     DateTime
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+}
