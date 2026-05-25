@@ -1,165 +1,110 @@
-# Lom Wong Café & Restaurant
+# Lom Wong Café & Daily Rooms
 
-Full-stack web application for **Lom Wong Café & Restaurant (ล้อมวง คาเฟ่)**.
+เว็บและระบบหลังบ้านสำหรับ **ล้อมวง คาเฟ่ แอนด์ เดลี่รูมส์** ร้านอาหาร/คาเฟ่พร้อมห้องพักรายวัน ระบบนี้พัฒนาจากแนวคิด “เว็บประชาสัมพันธ์ร้าน” ให้กลายเป็นระบบใช้งานจริงสำหรับลูกค้า เจ้าของร้าน และพนักงาน
 
 ## Demo
 
 - Live demo: `http://lomwong.me`
-- Dashboard login: `http://lomwong.me/dashboard/login`
+- หน้าเข้าสู่ระบบหลังบ้าน: `http://lomwong.me/dashboard/login`
 - Pivot worksheet: [PIVOT.md](./PIVOT.md)
 
-Seeded demo accounts:
+บัญชีทดสอบ:
 
 - Owner: `owner@lomwong.local` / `owner1234`
 - Staff: `staff@lomwong.local` / `staff1234`
 
-## Project Tree
+## ระบบนี้ทำอะไรได้
+
+- หน้าเว็บลูกค้า: หน้าแรก สถานะร้าน เมนู จองโต๊ะเฉพาะวันนี้ ห้องพัก และข้อมูลติดต่อ
+- โมจิ Chatbot: ผู้ช่วย AI ตอบคำถามลูกค้าจาก knowledge base ของร้าน เช่น เวลาเปิดปิด เมนู ราคา ห้องพัก และการเดินทาง
+- Dashboard หลังบ้าน: สำหรับเจ้าของร้านและพนักงาน
+- จัดการเมนู: เพิ่ม/แก้ไข/ลบ/ซ่อนเมนู อัปโหลดรูป และตั้งสถานะ “หมดชั่วคราว”
+- จัดการสถานะร้านและห้องพัก: เปิด/หยุด/กำลังปรับปรุง จำนวนห้องว่าง และราคาห้องพัก
+- ระบบจองโต๊ะ: ลูกค้าจองโต๊ะวันนี้ได้ และหลังบ้านยืนยัน/ปฏิเสธรายการจอง
+- QR Ordering: สร้าง QR สำหรับโต๊ะ ลูกค้าสแกนแล้วสั่งอาหารได้
+- ระบบรับออเดอร์หน้าร้าน: พนักงานรับออเดอร์เองได้
+- ระบบครัว/ออเดอร์: เปลี่ยนสถานะ `PENDING -> PREPARING -> READY -> PAID`
+- Auto Sales + โมจิ Alert: ปิดบิลแล้วบันทึกยอดขายอัตโนมัติ และแจ้งเตือนเมื่อยอดขายรายวันต่ำกว่าเป้า
+- Caption Generator: ช่วยสร้างแคปชันการตลาด เลือกเป้าหมายโพสต์ กลุ่มลูกค้า ช่องทาง โทน ความยาว และจำนวน hashtag ได้
+
+## Tech Stack
+
+- Frontend: Next.js 14, React, Tailwind CSS
+- Backend: Node.js, Express
+- Database: PostgreSQL + Prisma
+- AI: Gemini API
+- Deployment: Docker Compose, Nginx, DigitalOcean Droplet
+- Optional integrations: Google Sheets, Telegram Alert
+
+## โครงสร้างโปรเจกต์
 
 ```text
 lomwong-cafe/
-├── frontend/
-│   ├── app/
-│   │   ├── page.js
-│   │   ├── menu/page.js
-│   │   ├── booking/page.js
-│   │   ├── contact/page.js
-│   │   ├── order/[token]/page.js
-│   │   └── dashboard/
-│   │       ├── page.js
-│   │       ├── login/page.js
-│   │       └── orders/new/page.js
-│   ├── components/
-│   │   ├── Navbar.jsx
-│   │   ├── StatusBadge.jsx
-│   │   └── ChatbotWidget.jsx
-│   ├── lib/api.js
-│   ├── package.json
-│   ├── tailwind.config.js
-│   └── next.config.js
-├── backend/
-│   ├── data/lomwong_cafe_kb.txt
-│   ├── middleware/auth.js
-│   ├── routes/
-│   │   ├── ai.js
-│   │   ├── auth.js
-│   │   ├── bookings.js
-│   │   ├── menu.js
-│   │   ├── orders.js
-│   │   ├── promotions.js
-│   │   ├── qr.js
-│   │   ├── sales.js
-│   │   ├── staff.js
-│   │   └── store.js
-│   ├── services/ai.js
-│   ├── utils/prisma.js
-│   ├── package.json
-│   └── server.js
-├── prisma/
-│   ├── schema.prisma
-│   └── seed.js
-├── nginx/lomwong.conf
+├── frontend/              # Next.js frontend
+├── backend/               # Express API
+├── backend/data/          # knowledge base ของโมจิ Chatbot
+├── prisma/                # Prisma schema และ seed data
+├── nginx/                 # Nginx config สำหรับ production
 ├── docker-compose.yml
-├── ecosystem.config.js
 ├── .env.example
+├── PIVOT.md
 └── README.md
 ```
 
-## Features
+## วิธีรันในเครื่องด้วย Docker Desktop
 
-- Customer site: home, live store status, menu, today-only booking, contact/map.
-- Floating โมจิ chatbot using the Gemini API with `backend/data/lomwong_cafe_kb.txt`.
-- Owner/staff dashboard with JWT login.
-- Store status manager, menu CRUD, sold-out menu status, promotion CRUD, booking manager, and staff manager.
-- Auto sales logging, daily/weekly/monthly summary, and โมจิ Alert when daily sales are below threshold.
-- Caption Generator with goal, audience, platform, tone, length, hashtag count, and copy-ready outputs.
-- QR ordering and staff order entry with status flow `pending -> preparing -> ready -> paid`.
-- Room information manager for daily rooms, room availability, and room price.
-
-## Demo Day Polish Checklist
-
-### UI / UX
-
-- [x] ชื่อ app และ branding สอดคล้องกับ domain ใหม่: Lom Wong Café & Daily Rooms
-- [x] ภาษาที่ใช้เหมาะกับลูกค้าร้านอาหาร/ห้องพักและพนักงานร้าน
-- [x] มี error message ภาษาไทยที่อ่านเข้าใจง่ายใน booking, login, ordering, และ dashboard
-- [x] หน้าตาเป็น Next.js dashboard สะอาด ไม่มี debug output โผล่ในหน้าเว็บ
-
-### Code Quality
-
-- [x] ไม่มี debug `print()` ในโค้ด เพราะโปรเจกต์ใช้ Node.js/Next.js
-- [x] ไม่มี hard-coded API key ในโค้ด และใช้ `.env` / `.env.example`
-- [x] dependencies ครบใน `package.json`, `frontend/package.json`, และ `backend/package.json`
-
-### README.md
-
-- [x] README อธิบายระบบสำหรับ domain ล้อมวง ไม่ใช่ MilkLab°
-- [x] มี link ไปยัง live demo URL
-- [x] มีวิธีรันในเครื่องท้องถิ่นด้วย Docker Desktop และ manual local setup
-- [x] มี link ไปยัง [PIVOT.md](./PIVOT.md)
-
-## Local Development
-
-### Docker Desktop
-
-Run the full stack with PostgreSQL, backend, and frontend:
+ใช้วิธีนี้ง่ายที่สุด เพราะจะรัน PostgreSQL, backend และ frontend ให้พร้อมกัน
 
 ```bash
 docker compose up -d --build
 ```
 
-Open:
+เปิดใช้งาน:
 
 - Frontend: `http://localhost:3000`
 - Backend health: `http://localhost:4000/api/health`
 
-Useful Docker commands:
+คำสั่งที่ใช้บ่อย:
 
 ```bash
 docker compose ps
 docker compose logs -f backend
+docker compose logs -f frontend
 docker compose down
 ```
 
-The compose setup uses `.env.example` as defaults and overrides `DATABASE_URL` for the internal Docker network. Create a real `.env` later when adding production secrets such as `JWT_SECRET`, `GEMINI_API_KEY`, Google Sheets, or Telegram credentials.
+## วิธีรันแบบ Manual Local Setup
 
-### Manual Local Setup
-
-1. Copy env file:
+1. คัดลอกไฟล์ environment:
 
 ```bash
 cp .env.example .env
 ```
 
-2. Edit `.env`:
+2. แก้ไข `.env` ให้เหมาะกับเครื่อง local:
 
 ```env
 DATABASE_URL=postgresql://lomwong:lomwong@localhost:5432/lomwong
 JWT_SECRET=replace_with_a_long_secret
 GEMINI_API_KEY=your_key_here
-GEMINI_MODEL=gemini-2.5-flash
-GOOGLE_SHEET_ID=your_google_sheet_id
+GEMINI_MODEL=gemini-3.1-flash-lite
+GOOGLE_SHEET_ID=
 GOOGLE_SHEET_WORKSHEET=Sales
 GOOGLE_APPLICATION_CREDENTIALS=./google-service-account.json
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-TELEGRAM_CHAT_ID=your_telegram_chat_id
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
 STORE_ALERT_THRESHOLD=500
 NEXT_PUBLIC_API_URL=http://localhost:4000
 FRONTEND_ORIGIN=http://localhost:3000
 ```
 
-3. Start PostgreSQL:
-
-```bash
-docker compose up -d
-```
-
-4. Install dependencies:
+3. ติดตั้ง dependencies:
 
 ```bash
 npm run install:all
 ```
 
-5. Generate Prisma client and migrate:
+4. สร้าง Prisma client และเตรียมฐานข้อมูล:
 
 ```bash
 npm run db:generate
@@ -167,20 +112,13 @@ npm run db:migrate -- --name init
 npm run db:seed
 ```
 
-6. Run the app:
+5. รันระบบ:
 
 ```bash
 npm run dev
 ```
 
-Open:
-
-- Frontend: `http://localhost:3000`
-- Backend health: `http://localhost:4000/api/health`
-
-Seeded logins are listed in the Demo section above.
-
-## API Summary
+## API หลัก
 
 Auth:
 
@@ -199,13 +137,6 @@ Menu:
 - `PUT /api/menu/:id`
 - `DELETE /api/menu/:id`
 
-Promotions:
-
-- `GET /api/promotions`
-- `POST /api/promotions`
-- `PUT /api/promotions/:id`
-- `DELETE /api/promotions/:id`
-
 Bookings:
 
 - `POST /api/bookings`
@@ -221,7 +152,6 @@ Orders:
 QR:
 
 - `POST /api/qr/generate`
-- `GET /api/qr/generate`
 - `GET /api/qr/validate/:token`
 
 Sales:
@@ -230,102 +160,69 @@ Sales:
 - `GET /api/sales/summary?period=day|week|month`
 - `POST /api/sales/demi-alert`
 
-Staff:
-
-- `GET /api/staff`
-- `POST /api/staff`
-- `PUT /api/staff/:id`
-- `DELETE /api/staff/:id`
-
 AI:
 
 - `POST /api/chat`
 - `POST /api/ai/caption`
 
-## DigitalOcean Droplet Setup
+## Deploy บน DigitalOcean Droplet
 
-Ubuntu 22.04 commands:
-
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y nginx postgresql postgresql-contrib git build-essential
-curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
-sudo apt install -y nodejs
-sudo npm install -g pm2
-```
-
-Create database:
+ตัวอย่าง flow หลังจาก clone repo ลง Droplet:
 
 ```bash
-sudo -u postgres psql
-CREATE USER lomwong WITH PASSWORD 'strong_password_here';
-CREATE DATABASE lomwong OWNER lomwong;
-\q
-```
-
-Deploy code:
-
-```bash
-cd /var/www
-sudo git clone https://github.com/yourname/lomwong-cafe.git
-sudo chown -R $USER:$USER /var/www/lomwong-cafe
-cd /var/www/lomwong-cafe
+cd /opt/lomwong-cafe
 cp .env.example .env
 nano .env
+docker compose up -d --build
 ```
 
-Install, migrate, and build:
+เช็กสถานะ:
 
 ```bash
-npm run install:all
-npm run db:generate
-npm run db:migrate -- --name init
-npm run db:seed
-npm --prefix frontend run build
+docker compose ps
+docker compose logs --tail=80 backend
+docker compose logs --tail=80 frontend
+curl http://localhost:4000/api/health
 ```
 
-Start with PM2:
+เมื่ออัปเดตจาก GitHub:
 
 ```bash
-pm2 start ecosystem.config.js
-pm2 save
-pm2 startup
-```
-
-Configure Nginx:
-
-```bash
-sudo cp nginx/lomwong.conf /etc/nginx/sites-available/lomwong.conf
-sudo ln -s /etc/nginx/sites-available/lomwong.conf /etc/nginx/sites-enabled/lomwong.conf
-sudo nginx -t
-sudo systemctl reload nginx
-```
-
-Enable SSL with Certbot:
-
-```bash
-sudo apt install -y certbot python3-certbot-nginx
-sudo certbot --nginx -d yourdomain.com -d www.yourdomain.com
-```
-
-Useful commands:
-
-```bash
-pm2 status
-pm2 logs lomwong-backend
-pm2 logs lomwong-frontend
-sudo systemctl reload nginx
+git pull
+docker compose up -d --build
 ```
 
 ## Production Notes
 
-- Replace `JWT_SECRET` with a long random value.
-- Set `GEMINI_API_KEY` before using chatbot/caption generation in production.
-- For Session 2 style Sales Logger, set `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_WORKSHEET`, and `GOOGLE_APPLICATION_CREDENTIALS`; new sales will still save to PostgreSQL and will also append to Google Sheets when configured.
-- For Telegram โมจิ Alert, set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID`, then call `POST /api/sales/demi-alert` from the dashboard, a cron job, or GitHub Actions.
-- Update `NEXT_PUBLIC_API_URL` and `FRONTEND_ORIGIN` to your domain.
-- The backend accepts menu images via multipart `image` upload or an `imageUrl` field.
-- Dashboard auth is stored in browser localStorage; for stricter production security, move JWT to httpOnly cookies.
+- ห้าม commit `.env` หรือไฟล์ secret เช่น service account JSON
+- ต้องเปลี่ยน `JWT_SECRET` เป็นค่าสุ่มยาวก่อนใช้งานจริง
+- ต้องตั้ง `GEMINI_API_KEY` ถ้าต้องการใช้โมจิ Chatbot และ Caption Generator
+- ถ้าต้องการ sync ยอดขายไป Google Sheets ให้ตั้ง `GOOGLE_SHEET_ID`, `GOOGLE_SHEET_WORKSHEET`, และ `GOOGLE_APPLICATION_CREDENTIALS`
+- ถ้าต้องการ Telegram โมจิ Alert ให้ตั้ง `TELEGRAM_BOT_TOKEN` และ `TELEGRAM_CHAT_ID`
+- ตั้ง `NEXT_PUBLIC_API_URL` และ `FRONTEND_ORIGIN` ให้ตรงกับ domain จริง เช่น `http://lomwong.me`
+- Dashboard ตอนนี้เก็บ JWT ใน browser localStorage ถ้าต้องการ production security ที่เข้มขึ้น ควรย้ายไปใช้ httpOnly cookies
+
+## Demo Day Polish Checklist
+
+### UI / UX
+
+- [x] ชื่อ app และ branding สอดคล้องกับ domain ใหม่: Lom Wong Café & Daily Rooms
+- [x] ภาษาที่ใช้เหมาะกับลูกค้าร้านอาหาร/ห้องพักและพนักงานร้าน
+- [x] มี error message ภาษาไทยที่อ่านเข้าใจง่ายใน booking, login, ordering และ dashboard
+- [x] หน้าตา dashboard สะอาด ไม่มี debug output โผล่ในหน้าเว็บ
+
+### Code Quality
+
+- [x] ไม่มี debug `print()` ในโค้ด เพราะโปรเจกต์ใช้ Node.js/Next.js
+- [x] ไม่มี hard-coded API key ในโค้ด และใช้ `.env` / `.env.example`
+- [x] dependencies ครบใน `package.json`, `frontend/package.json` และ `backend/package.json`
+
+### README.md
+
+- [x] README อธิบายระบบสำหรับ domain ล้อมวง ไม่ใช่ MilkLab°
+- [x] มี link ไปยัง live demo URL
+- [x] มีวิธีรันในเครื่องท้องถิ่นด้วย Docker Desktop และ manual local setup
+- [x] มี link ไปยัง [PIVOT.md](./PIVOT.md)
 
 ## Demo Day Self-Check
 
