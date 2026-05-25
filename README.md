@@ -8,11 +8,6 @@
 - หน้าเข้าสู่ระบบหลังบ้าน: `http://lomwong.me/dashboard/login`
 - Pivot worksheet: [PIVOT.md](./PIVOT.md)
 
-บัญชีทดสอบ:
-
-- Owner: `owner@lomwong.local` / `owner1234`
-- Staff: `staff@lomwong.local` / `staff1234`
-
 ## ระบบนี้ทำอะไรได้
 
 - หน้าเว็บลูกค้า: หน้าแรก สถานะร้าน เมนู จองโต๊ะเฉพาะวันนี้ ห้องพัก และข้อมูลติดต่อ
